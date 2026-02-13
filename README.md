@@ -25,15 +25,8 @@ How this system runs end-to-end:
 
 Request/processing flow summary:
 
-```text
-Mock Publisher -> MQTT (Mosquitto) -> API Subscriber -> PostgreSQL
-                                          |
-                                          v
-                                  Geofence Check
-                                          |
-                                          v
-                                  RabbitMQ Publisher -> Worker Consumer
-```
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/8b74d6e8-e1d0-45a9-a667-988582d78c15" />
+
 
 ## Services
 - **API**: HTTP + MQTT subscriber + geofence publisher
