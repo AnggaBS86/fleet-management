@@ -1,0 +1,52 @@
+{
+  "info": {
+    "name": "Fleet Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "vehicleId",
+      "value": "B1234XYZ"
+    },
+    {
+      "key": "start",
+      "value": "1715000000"
+    },
+    {
+      "key": "end",
+      "value": "1715009999"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get Latest Location",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/{{vehicleId}}/location",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicles", "{{vehicleId}}", "location"]
+        }
+      }
+    },
+    {
+      "name": "Get Location History",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/vehicles/{{vehicleId}}/history?start={{start}}&end={{end}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["vehicles", "{{vehicleId}}", "history"],
+          "query": [
+            {"key": "start", "value": "{{start}}"},
+            {"key": "end", "value": "{{end}}"}
+          ]
+        }
+      }
+    }
+  ]
+}

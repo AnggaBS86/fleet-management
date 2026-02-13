@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: fleet
+      POSTGRES_USER: fleet
+      POSTGRES_PASSWORD: fleet
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleet -d fleet"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      HTTP_PORT: "8080"
+      POSTGRES_URL: postgres://fleet:fleet@postgres:5432/fleet?sslmode=disable
+      MQTT_BROKER: tcp://mosquitto:1883
+      MQTT_CLIENT_ID: fleet-api
+      RABBIT_URL: amqp://guest:guest@rabbitmq:5672/
+      GEOFENCE_LAT: "-6.2088"
+      GEOFENCE_LON: "106.8456"
+      GEOFENCE_RADIUS_METERS: "50"
+      RABBIT_EXCHANGE: fleet.events
+      RABBIT_QUEUE: geofence_alerts
+      RABBIT_ROUTING_KEY: geofence_alerts
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+
+  worker:
+    build: .
+    command: ["/app/worker"]
+    restart: unless-stopped
+    environment:
+      RABBIT_URL: amqp://guest:guest@rabbitmq:5672/
+      RABBIT_EXCHANGE: fleet.events
+      RABBIT_QUEUE: geofence_alerts
+      RABBIT_ROUTING_KEY: geofence_alerts
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  publisher:
+    build: .
+    command: ["/app/publisher"]
+    restart: unless-stopped
+    environment:
+      MQTT_BROKER: tcp://mosquitto:1883
+      VEHICLE_ID: B1234XYZ
+      BASE_LAT: "-6.2088"
+      BASE_LON: "106.8456"
+    depends_on:
+      mosquitto:
+        condition: service_started
+
+volumes:
+  postgres_data:
