@@ -69,6 +69,7 @@ func (s *Subscriber) Start(ctx context.Context, topic string) error {
 			return
 		}
 
+		// get distance, then if distacne is 50 meter --> publish to RabbitMQ
 		distance := geofence.DistanceMeters(s.geofenceLat, s.geofenceLon, payload.Latitude, payload.Longitude)
 		if distance <= s.radiusM {
 			event := queue.GeofenceEvent{
@@ -79,7 +80,7 @@ func (s *Subscriber) Start(ctx context.Context, topic string) error {
 			event.Location.Latitude = payload.Latitude
 			event.Location.Longitude = payload.Longitude
 
-			if err := s.publisher.Publish(event); err != nil {
+			if err := s.publisher.PublishToRabbitMq(event); err != nil {
 				log.Printf("publish geofence event failed: %v", err)
 			}
 		}

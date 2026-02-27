@@ -76,7 +76,7 @@ func (p *Publisher) Close() {
 	}
 }
 
-func (p *Publisher) Publish(event GeofenceEvent) error {
+func (p *Publisher) PublishToRabbitMq(event GeofenceEvent) error {
 	body, err := json.Marshal(event)
 	if err != nil {
 		return err

@@ -15,9 +15,12 @@ import (
 	"leet-management/internal/models"
 )
 
+// This publisher just think like `halte bus transjakarta`
 func main() {
 	cfg := config.Load()
 
+	// this is just example of `VEHICLE_ID`
+	// we can update this one, could be from excel file or json data or DB query
 	vehicleID := os.Getenv("VEHICLE_ID")
 	if vehicleID == "" {
 		vehicleID = "B1234XYZ"
@@ -39,6 +42,7 @@ func main() {
 	log.Printf("publishing to %s", topic)
 
 	for {
+		// long and lat has beed made rand
 		latOffset := (rng.Float64() - 0.5) * 0.002
 		lonOffset := (rng.Float64() - 0.5) * 0.002
 
